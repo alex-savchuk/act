@@ -45,26 +45,36 @@ func NewDockerBuildExecutor(input NewDockerBuildExecutorInput) common.Executor {
 
 		logger.Debugf("Building image from '%v'", input.ContextDir)
 
-		tags := []string{input.ImageTag}
-		options := types.ImageBuildOptions{
-			Tags:     tags,
-			Remove:   true,
-			Platform: input.Platform,
-		}
 		var buildContext io.ReadCloser
 		if input.Container != nil {
+			logger.Debugf(" QQQ 1 Building image from '%v'", input.ContextDir)
+
 			buildContext, err = input.Container.GetContainerArchive(ctx, input.ContextDir+"/.")
 		} else {
+			logger.Debugf(" QQQ 2 Building image from '%v'", input.ContextDir)
+
 			buildContext, err = createBuildContext(ctx, input.ContextDir, "Dockerfile")
 		}
 		if err != nil {
 			return err
 		}
-
 		defer buildContext.Close()
+
+		logger.Debugf("Building image from '%v'", input.ContextDir)
+
+		tags := []string{input.ImageTag}
+		options := types.ImageBuildOptions{
+			Tags:     tags,
+			Remove:   true,
+			Platform: input.Platform,
+			//Context:  buildContext,
+		}
 
 		logger.Debugf("Creating image from context dir '%s' with tag '%s' and platform '%s'", input.ContextDir, input.ImageTag, input.Platform)
 		resp, err := cli.ImageBuild(ctx, buildContext, options)
+		if err != nil {
+			return err
+		}
 
 		err = logDockerResponse(logger, resp.Body, err != nil)
 		if err != nil {

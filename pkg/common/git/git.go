@@ -10,6 +10,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 	"sync"
 
@@ -224,6 +225,9 @@ func findGitSlug(url string, githubInstance string) (string, string, error) {
 }
 
 func findGitDirectory(fromFile string) (string, error) {
+	if runtime.GOOS == "windows" && strings.Contains(fromFile, "/") {
+		return "", nil
+	}
 	absPath, err := filepath.Abs(fromFile)
 	if err != nil {
 		return "", err
@@ -245,7 +249,15 @@ func findGitDirectory(fromFile string) (string, error) {
 	fi, err = os.Stat(gitPath)
 	if err == nil && fi.Mode().IsDir() {
 		return gitPath, nil
-	} else if dir == "/" || dir == "C:\\" || dir == "c:\\" {
+	}
+
+	// avoid infinite recursion
+	if dir == "/" {
+		return "", &Error{err: ErrNoRepo}
+	}
+
+	volumeDir := filepath.VolumeName(dir)
+	if dir == volumeDir || dir == volumeDir+"\\" {
 		return "", &Error{err: ErrNoRepo}
 	}
 
@@ -318,7 +330,8 @@ func gitOptions(token string) (fetchOptions git.FetchOptions, pullOptions git.Pu
 }
 
 // NewGitCloneExecutor creates an executor to clone git repos
-// nolint:gocyclo
+//
+//nolint:gocyclo
 func NewGitCloneExecutor(input NewGitCloneExecutorInput) common.Executor {
 	return func(ctx context.Context) error {
 		logger := common.Logger(ctx)

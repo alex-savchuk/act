@@ -1,0 +1,37 @@
+=== RUN   TestRunEvent
+=== RUN   TestRunEvent/container-volumes
+::group::container-volumes
+time="2022-09-18T15:13:59+03:00" level=debug msg="Loading workflows from 'D:\\Sources\\act\\pkg\\model\\testdata\\container-volumes'"
+time="2022-09-18T15:13:59+03:00" level=debug msg="Reading workflow 'D:\\Sources\\act\\pkg\\model\\testdata\\container-volumes\\push.yml'"
+time="2022-09-18T15:13:59+03:00" level=debug msg="Loading slug from git directory 'D:\\Sources\\act\\.git'"
+time="2022-09-18T15:13:59+03:00" level=debug msg="Loading revision from git directory 'D:\\Sources\\act\\.git'"
+time="2022-09-18T15:13:59+03:00" level=debug msg="Found revision: 3a0fe6967fd8ecd3cb86550d0225d55a0bb37ac9\n"
+time="2022-09-18T15:13:59+03:00" level=debug msg="HEAD points to '3a0fe6967fd8ecd3cb86550d0225d55a0bb37ac9'"
+time="2022-09-18T15:13:59+03:00" level=debug msg="using github ref: refs/heads/master"
+time="2022-09-18T15:13:59+03:00" level=debug msg="Found revision: 3a0fe6967fd8ecd3cb86550d0225d55a0bb37ac9\n"
+[Job Container/with-volumes] [DEBUG] evaluating expression 'success()'
+[Job Container/with-volumes] [DEBUG] expression 'success()' evaluated to 'true'
+[Job Container/with-volumes] 🚀  Start image=node:16-buster-slim
+[Job Container/with-volumes]   🐳  docker pull image=node:16-buster-slim platform= username= forcePull=false
+[Job Container/with-volumes] [DEBUG]   🐳  docker pull node:16-buster-slim
+[Job Container/with-volumes] [DEBUG] Image exists? true
+[Job Container/with-volumes]   🐳  docker create image=node:16-buster-slim platform= entrypoint=["/usr/bin/tail" "-f" "/dev/null"] cmd=[]
+[Job Container/with-volumes] 🏁  Job succeeded
+[Job Container/with-volumes] [DEBUG] Loading slug from git directory 'D:\Sources\act\.git'
+[Job Container/with-volumes] [DEBUG] Loading revision from git directory 'D:\Sources\act\.git'
+[Job Container/with-volumes] [DEBUG] Found revision: 3a0fe6967fd8ecd3cb86550d0225d55a0bb37ac9
+[Job Container/with-volumes] [DEBUG] HEAD points to '3a0fe6967fd8ecd3cb86550d0225d55a0bb37ac9'
+[Job Container/with-volumes] [DEBUG] using github ref: refs/heads/master
+[Job Container/with-volumes] [DEBUG] Found revision: 3a0fe6967fd8ecd3cb86550d0225d55a0bb37ac9
+    runner_test.go:105: 
+        	Error Trace:	D:\Sources\act\pkg\runner\runner_test.go:105
+        	            				D:\Sources\act\pkg\runner\runner_test.go:131
+        	Error:      	Expected nil, but got: &fmt.wrapError{msg:"failed to create container: Error response from daemon: mount denied:\nthe source path \"/path/to/nonexist/directory\"\ndoesn't contains colon", err:errdefs.errSystem{error:(*errors.withStack)(0xc0005ad1a0)}}
+        	Test:       	TestRunEvent/container-volumes
+        	Messages:   	D:\Sources\act\pkg\model\testdata\container-volumes
+::endgroup::
+--- FAIL: TestRunEvent (1.05s)
+    --- FAIL: TestRunEvent/container-volumes (1.05s)
+FAIL
+FAIL	github.com/nektos/act/pkg/runner	1.551s
+FAIL

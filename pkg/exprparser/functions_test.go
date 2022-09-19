@@ -2,6 +2,7 @@ package exprparser
 
 import (
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/nektos/act/pkg/model"
@@ -181,14 +182,15 @@ func TestFunctionFromJSON(t *testing.T) {
 
 func TestFunctionHashFiles(t *testing.T) {
 	table := []struct {
-		input    string
-		expected interface{}
-		name     string
+		input           string
+		expected        interface{}
+		expectedWindows interface{} // hash of files with CRs
+		name            string
 	}{
-		{"hashFiles('**/non-extant-files') }}", "", "hash-non-existing-file"},
-		{"hashFiles('**/non-extant-files', '**/more-non-extant-files') }}", "", "hash-multiple-non-existing-files"},
-		{"hashFiles('./for-hashing-1.txt') }}", "66a045b452102c59d840ec097d59d9467e13a3f34f6494e539ffd32c1bb35f18", "hash-single-file"},
-		{"hashFiles('./for-hashing-*') }}", "8e5935e7e13368cd9688fe8f48a0955293676a021562582c7e848dafe13fb046", "hash-multiple-files"},
+		{"hashFiles('**/non-extant-files') }}", "", "", "hash-non-existing-file"},
+		{"hashFiles('**/non-extant-files', '**/more-non-extant-files') }}", "", "", "hash-multiple-non-existing-files"},
+		{"hashFiles('./for-hashing-1.txt') }}", "66a045b452102c59d840ec097d59d9467e13a3f34f6494e539ffd32c1bb35f18", "05ade08fcfb104f40b2536a14dfcd6e916d643f5cf8044b19028b607ae8f4908", "hash-single-file"},
+		{"hashFiles('./for-hashing-*') }}", "8e5935e7e13368cd9688fe8f48a0955293676a021562582c7e848dafe13fb046", "afc4a56e18fb7080d0823ca10935baf78305f6380393ba871ea5f22ec2c0818d", "hash-multiple-files"},
 	}
 
 	env := &EvaluationEnvironment{}
@@ -200,7 +202,11 @@ func TestFunctionHashFiles(t *testing.T) {
 			output, err := NewInterpeter(env, Config{WorkingDir: workdir}).Evaluate(tt.input, DefaultStatusCheckNone)
 			assert.Nil(t, err)
 
-			assert.Equal(t, tt.expected, output)
+			if runtime.GOOS == "windows" {
+				assert.Contains(t, []interface{}{tt.expected, tt.expectedWindows}, output)
+			} else {
+				assert.Equal(t, tt.expected, output)
+			}
 		})
 	}
 }

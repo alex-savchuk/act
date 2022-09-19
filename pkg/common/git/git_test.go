@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"syscall"
 	"testing"
 
@@ -51,6 +52,18 @@ func testDir(t *testing.T) string {
 	return basedir
 }
 
+func testComplexDir(t *testing.T) (string, string) {
+	basedir, err := ioutil.TempDir("", "act-test")
+	require.NoError(t, err)
+
+	subdir := filepath.Join(basedir, "subdir1", "subdir2")
+	err = os.MkdirAll(subdir, os.ModePerm)
+	require.NoError(t, err)
+
+	t.Cleanup(func() { _ = os.RemoveAll(basedir) })
+	return basedir, subdir
+}
+
 func cleanGitHooks(dir string) error {
 	hooksDir := filepath.Join(dir, ".git", "hooks")
 	files, err := ioutil.ReadDir(hooksDir)
@@ -89,6 +102,44 @@ func TestFindGitRemoteURL(t *testing.T) {
 	u, err := findGitRemoteURL(context.Background(), basedir, "origin")
 	assert.NoError(err)
 	assert.Equal(remoteURL, u)
+}
+
+func TestFindGitDirectory(t *testing.T) {
+	assert := assert.New(t)
+
+	// prepare
+	basedir, subdir := testComplexDir(t)
+	gitConfig()
+	err := gitCmd("init", basedir)
+	assert.NoError(err)
+	err = cleanGitHooks(basedir)
+	assert.NoError(err)
+
+	// positive check of git root
+	checkDir := basedir
+	gitDir, err := findGitDirectory(checkDir)
+	assert.Equal(filepath.Join(basedir, ".git"), gitDir)
+	assert.NoError(err)
+
+	// positive check of git subpath
+	checkDir = subdir
+	gitDir, err = findGitDirectory(checkDir)
+	assert.Equal(filepath.Join(basedir, ".git"), gitDir)
+	assert.NoError(err)
+
+	// negative check of non git folder
+	checkDir = filepath.Dir(basedir)
+	gitDir, err = findGitDirectory(checkDir)
+	assert.Equal("", gitDir)
+	assert.Equal(&Error{err: ErrNoRepo}, err)
+
+	// negative check of Unix path on Windows
+	if runtime.GOOS == "windows" {
+		checkDir = "/tmp"
+		gitDir, err = findGitDirectory(checkDir)
+		assert.Equal("", gitDir)
+		assert.NoError(err)
+	}
 }
 
 func TestGitFindRef(t *testing.T) {

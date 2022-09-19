@@ -2,6 +2,8 @@ package runner
 
 import (
 	"context"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -32,6 +34,15 @@ func TestStepActionLocalTest(t *testing.T) {
 	cm := &containerMock{}
 	salm := &stepActionLocalMocks{}
 
+	var workDir string
+	if runtime.GOOS == "windows" {
+		workDir = "C:\\tmp"
+	} else {
+		workDir = "/tmp"
+	}
+	actionRelativePath := filepath.Join(".", "path", "to", "action")
+	actionAbsPath := filepath.Join(workDir, actionRelativePath)
+
 	sal := &stepActionLocal{
 		readAction: salm.readAction,
 		runAction:  salm.runAction,
@@ -39,7 +50,7 @@ func TestStepActionLocalTest(t *testing.T) {
 			StepResults: map[string]*model.StepResult{},
 			ExprEval:    &expressionEvaluator{},
 			Config: &Config{
-				Workdir: "/tmp",
+				Workdir: workDir,
 			},
 			Run: &model.Run{
 				JobID: "1",
@@ -59,11 +70,11 @@ func TestStepActionLocalTest(t *testing.T) {
 		},
 		Step: &model.Step{
 			ID:   "1",
-			Uses: "./path/to/action",
+			Uses: actionRelativePath,
 		},
 	}
 
-	salm.On("readAction", sal.Step, "/tmp/path/to/action", "", mock.Anything, mock.Anything).
+	salm.On("readAction", sal.Step, actionAbsPath, "", mock.Anything, mock.Anything).
 		Return(&model.Action{}, nil)
 
 	cm.On("UpdateFromImageEnv", mock.AnythingOfType("*map[string]string")).Return(func(ctx context.Context) error {
@@ -78,7 +89,7 @@ func TestStepActionLocalTest(t *testing.T) {
 		return nil
 	})
 
-	salm.On("runAction", sal, "/tmp/path/to/action", (*remoteAction)(nil)).Return(func(ctx context.Context) error {
+	salm.On("runAction", sal, actionAbsPath, (*remoteAction)(nil)).Return(func(ctx context.Context) error {
 		return nil
 	})
 

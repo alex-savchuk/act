@@ -226,8 +226,9 @@ func execAsDocker(ctx context.Context, step actionStep, actionName string, based
 		image = fmt.Sprintf("%s-dockeraction:%s", regexp.MustCompile("[^a-zA-Z0-9]").ReplaceAllString(actionName, "-"), "latest")
 		image = fmt.Sprintf("act-%s", strings.TrimLeft(image, "-"))
 		image = strings.ToLower(image)
-		contextDir := filepath.Join(basedir, action.Runs.Main)
 
+		contextDir := basedir + "/" + action.Runs.Main
+		logger.Infof("GGGG 1 %s %s -> %s ", basedir, action.Runs.Main, contextDir)
 		anyArchExists, err := container.ImageExistsLocally(ctx, image, "any")
 		if err != nil {
 			return err

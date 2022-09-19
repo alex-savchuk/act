@@ -86,6 +86,7 @@ func logDockerResponse(logger logrus.FieldLogger, dockerResponse io.ReadCloser, 
 
 	for scanner.Scan() {
 		line := scanner.Bytes()
+		writeLog(logger, false, "QQQ 0 %s", string(line))
 
 		msg.ID = ""
 		msg.Stream = ""
@@ -95,17 +96,17 @@ func logDockerResponse(logger logrus.FieldLogger, dockerResponse io.ReadCloser, 
 		msg.Progress = ""
 
 		if err := json.Unmarshal(line, &msg); err != nil {
-			writeLog(logger, false, "Unable to unmarshal line [%s] ==> %v", string(line), err)
+			writeLog(logger, false, "QQQ 1 Unable to unmarshal line [%s] ==> %v", string(line), err)
 			continue
 		}
 
 		if msg.Error != "" {
-			writeLog(logger, isError, "%s", msg.Error)
+			writeLog(logger, isError, "QQQ 2 %s", msg.Error)
 			return errors.New(msg.Error)
 		}
 
 		if msg.ErrorDetail.Message != "" {
-			writeLog(logger, isError, "%s", msg.ErrorDetail.Message)
+			writeLog(logger, isError, "QQQ 3 %s", msg.ErrorDetail.Message)
 			return errors.New(msg.Error)
 		}
 
@@ -116,9 +117,9 @@ func logDockerResponse(logger logrus.FieldLogger, dockerResponse io.ReadCloser, 
 				writeLog(logger, isError, "%s :: %s\n", msg.Status, msg.ID)
 			}
 		} else if msg.Stream != "" {
-			writeLog(logger, isError, "%s", msg.Stream)
+			writeLog(logger, isError, "QQQ 6 %s", msg.Stream)
 		} else {
-			writeLog(logger, false, "Unable to handle line: %s", string(line))
+			writeLog(logger, false, "QQQ 7 Unable to handle line: %s", string(line))
 		}
 	}
 

@@ -1,0 +1,15 @@
+--- FAIL: TestArtifactFlow (81.56s)
+    --- FAIL: TestArtifactFlow/upload-and-download (81.55s)
+
+--- FAIL: TestDocker (0.07s)
+--- FAIL: TestRunContext_GetBindsAndMounts (0.00s)
+    --- FAIL: TestRunContext_GetBindsAndMounts/ContainerVolumeMountTest (0.00s)
+        --- FAIL: TestRunContext_GetBindsAndMounts/ContainerVolumeMountTest/BindHostFile (0.00s)
+
+--- FAIL: TestRunEvent (222.17s)
+    --- FAIL: TestRunEvent/local-action-dockerfile (3.68s)
+    --- FAIL: TestRunEvent/local-action-via-composite-dockerfile (6.53s)
+    --- FAIL: TestRunEvent/issue-1195 (1.28s)
+    --- FAIL: TestRunEvent/basic (5.12s)
+    --- FAIL: TestRunEvent/actions-environment-and-context-tests (4.32s)
+    --- FAIL: TestRunEvent/container-volumes (0.15s)

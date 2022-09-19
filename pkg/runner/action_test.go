@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"io/fs"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -92,7 +93,7 @@ runs:
 					"cwd": {
 						Description: "(Actual working directory)",
 						Required:    false,
-						Default:     "actionDir/actionPath",
+						Default:     filepath.Join("actionDir", "actionPath"),
 					},
 					"command": {
 						Description: "(Actual program)",
@@ -121,7 +122,8 @@ runs:
 			}
 
 			writeFile := func(filename string, data []byte, perm fs.FileMode) error {
-				assert.Equal(t, "actionDir/actionPath/trampoline.js", filename)
+				expectedPath := filepath.Join("actionDir", "actionPath", "trampoline.js")
+				assert.Equal(t, expectedPath, filename)
 				assert.Equal(t, fs.FileMode(0400), perm)
 				return nil
 			}

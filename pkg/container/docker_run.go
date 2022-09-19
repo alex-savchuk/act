@@ -180,7 +180,9 @@ func (cr *containerReference) GetContainerArchive(ctx context.Context, srcPath s
 	if common.Dryrun(ctx) {
 		return nil, fmt.Errorf("DRYRUN is not supported in GetContainerArchive")
 	}
-	a, _, err := cr.cli.CopyFromContainer(ctx, cr.id, srcPath)
+	a, stat, err := cr.cli.CopyFromContainer(ctx, cr.id, srcPath)
+	logger := common.Logger(ctx)
+	logger.Info("EEE %+v %s", stat, srcPath)
 	return a, err
 }
 
